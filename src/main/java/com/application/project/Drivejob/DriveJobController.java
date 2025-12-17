@@ -1,6 +1,9 @@
 package com.application.project.Drivejob;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -14,27 +17,37 @@ public class DriveJobController {
     }
 
     @GetMapping
-    public List<DriveJob> getAll() {
-        return service.getAllDriveJobs();
+    public ResponseEntity<List<DriveJob>> getAll() {
+        return ResponseEntity.ok(service.getAllDriveJobs());
     }
 
     @GetMapping("/{id}")
-    public DriveJob getById(@PathVariable Integer id) {
-        return service.getDriveJobById(id);
+    public ResponseEntity<DriveJob> getById(@PathVariable Integer id) {
+        DriveJob job = service.getDriveJobById(id);
+        return job != null
+                ? ResponseEntity.ok(job)
+                : ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public DriveJob create(@RequestBody DriveJob driveJob) {
-        return service.createDriveJob(driveJob);
+    public ResponseEntity<DriveJob> create(@RequestBody DriveJob driveJob) {
+        // ✅ NO setId() needed
+        DriveJob created = service.createDriveJob(driveJob);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public DriveJob update(@PathVariable Integer id, @RequestBody DriveJob driveJob) {
-        return service.updateDriveJob(id, driveJob);
+    public ResponseEntity<DriveJob> update(@PathVariable Integer id,
+                                           @RequestBody DriveJob driveJob) {
+        DriveJob updated = service.updateDriveJob(id, driveJob);
+        return updated != null
+                ? ResponseEntity.ok(updated)
+                : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         service.deleteDriveJob(id);
+        return ResponseEntity.noContent().build();
     }
 }
